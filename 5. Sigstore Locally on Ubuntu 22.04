@@ -1,0 +1,196 @@
+-------------------------------------------------------------
+# Installing Docker
+-------------------------------------------------------------
+$ sudo apt install ca-certificates curl gnupg wget apt-transport-https -y
+$ sudo install -m 0755 -d /etc/apt/keyrings
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+$ sudo chmod a+r /etc/apt/keyrings/docker.gpg
+$ echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+$ sudo apt update
+
+$ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+$ sudo usermod -aG docker $USER
+$ newgrp docker
+-------------------------------------------------------------
+# install minikube
+-------------------------------------------------------------
+$ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+$ sudo install minikube-linux-amd64 /usr/local/bin/minikube
+-------------------------------------------------------------
+# install kubectl
+-------------------------------------------------------------
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+$ chmod +x kubectl
+$ sudo mv kubectl /usr/local/bin/
+
+$  kubectl version -o yaml
+-------------------------------------------------------------
+# install golang
+-------------------------------------------------------------
+$ wget https://go.dev/dl/go1.21.6.linux-amd64.tar.gz
+$ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz
+
+# add to .bashrc and run in the bash shell
+
+export PATH=$PATH:/usr/local/go/bin
+
+$ go version
+
+-------------------------------------------------------------
+# install ko
+-------------------------------------------------------------
+$ go install github.com/google/ko@latest
+$ sudo cp ~/go/bin/ko /usr/bin
+
+-------------------------------------------------------------
+# install cosign
+-------------------------------------------------------------
+$ go install github.com/sigstore/cosign/v2/cmd/cosign@latest
+$ sudo cp ~/go/bin/cosign /usr/bin
+
+or
+
+$ LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | grep tag_name | cut -d : -f2 | tr -d "v\", ")
+$ curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_VERSION}_amd64.deb"
+$ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
+
+-------------------------------------------------------------
+# install kind
+-------------------------------------------------------------
+#!/bin/bash
+
+# For AMD64 / x86_64
+[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+chmod +x ./kind
+sudo cp ./kind /usr/local/bin/kind
+rm -rf kind
+--------------------------------------------------------------
+# Run minikube, create a cluster and set ingress
+--------------------------------------------------------------
+$ minikube start --driver=docker 
+
+# for macos use minikube start --driver=hyperkit
+
+$ wget https://raw.githubusercontent.com/flxw/sigstore-local-setup/master/kind-cluster-config.yaml
+$ kind create cluster --name kind-for-helm --config=kind-cluster-config.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+$ minikube addons enable ingress
+--------------------------------------------------------------
+# Run Helm and deploy repo
+--------------------------------------------------------------
+
+#!/bin/bash
+wget https://raw.githubusercontent.com/flxw/sigstore-local-setup/master/scaffold.values.yaml
+helm repo add sigstore https://sigstore.github.io/helm-charts
+helm upgrade \
+    -i scaffold \
+    sigstore/scaffold \
+    -n sigstore \
+    --create-namespace \
+    --values scaffold.values.yaml
+# for monitoring use : $ kubectl get pods --all-namespaces
+# or use $ kubectl rollout status deployment scaffold-tuf-tuf -n tuf-system --timeout=90s , for monitoring tuf only
+
+---------------------------------------------------------------
+# Run OPENSSL , for macos install openssl@1.1
+---------------------------------------------------------------
+#!/bin/sh
+# create a self-signed CA certificate (add ca.cert.pem to trust store and configure explicit trust)
+openssl req -x509 -newkey rsa:4096 -keyout ca.private.pem -out ca.cert.pem -sha256 -days 365 -nodes
+
+for service_name in rekor fulcio tuf; do
+    cat << EOF > $service_name.cert.ext
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = $service_name.sigstore.local
+EOF
+
+    openssl req -new -newkey rsa:4096 \
+        -keyout $service_name.private.pem \
+        -out $service_name.req.pem -nodes
+
+    openssl x509 -req -in $service_name.req.pem \
+        -days 365 -CA ca.cert.pem -CAkey ca.private.pem \
+        -CAcreateserial -out $service_name.signed.cert.pem \
+        -extfile $service_name.cert.ext
+
+    kubectl create secret tls $service_name-tls \
+        --namespace=$service_name-system \
+        --cert=$service_name.signed.cert.pem \
+        --key=$service_name.private.pem
+done
+---------------------------------------------------------------
+# installing ca cert to security-trust-store, spesific for ubuntu 22.04
+---------------------------------------------------------------
+$ sudo apt-get install -y ca-certificates
+$ sudo cp ca.cert.pem /etc/ssl/certs
+$ sudo update-ca-certificates
+
+----------------------------------------------------------------
+# Testing the env try to Sign and Verify, Here is mine
+----------------------------------------------------------------
+#!/bin/bash
+echo " "
+echo "=================================================================================="
+echo " "
+echo "Prep the Dummy IMAGE"
+echo " "
+echo "=================================================================================="
+echo " "
+export KO_DOCKER_REPO=registry.local:5000/sigstore
+pushd $(mktemp -d)
+go mod init example.com/demo
+cat <<EOF > main.go
+package main
+import "fmt"
+func main() {
+   fmt.Println("hello world")
+}
+EOF
+
+export IMAGE=`ko publish -B example.com/demo`
+echo "=================================================================================="
+echo " "
+echo "Created image $IMAGE"
+echo " "
+echo "=================================================================================="
+echo " "
+popd
+
+REKOR_URL=https://rekor.sigstore.local
+FULCIO_URL=https://fulcio.sigstore.local
+export COSIGN_EXPERIMENTAL=1
+
+echo " "
+echo "BEGIN SIGING PROCESS WITH COSIGN"
+echo " "
+echo "=================================================================================="
+echo " "
+echo "PARAMETER FULCIO_URL IS $FULCIO_URL"
+echo "PARAMETER REKOR_URL IS $REKOR_URL"
+echo " "
+# add --verbose if you are curious ;)
+cosign -d sign --fulcio-url=$FULCIO_URL --rekor-url=$REKOR_URL --allow-insecure-registry $IMAGE
+echo " "
+echo "END SINGING PROCESS"
+echo " "
+echo "===================================================================================="
+echo " "
+echo "BEGIN VERIFY PROCESS"
+echo " "
+cosign -d verify --certificate-identity=danies.pahlevi@gmail.com --certificate-oidc-issuer=www.github.com --allow-insecure-registry --rekor-url=$REKOR_URL $IMAGE
+echo " "
+echo "END VERIFY PROCESS"
+echo " "
+echo "===================================================================================="
+--------------------------------------------------------------------------------------------------------------------------------------------
+Ref : https://docs.sigstore.dev/verifying/verify/
