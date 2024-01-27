@@ -6,7 +6,7 @@
 -----------------------------------------------------------------------------
 1. Cloud Computing Security for Beginner [Eng].pdf
    > 👉 is about Cloud Computing and How to Secure them for beginner
-2. Hashicorp Vault for Beginner [Eng].pdf
+2. [Hashicorp Vault for Beginner [Eng].pdf](https://github.com/z3rg/Publication/blob/main/2.%20Hashicorp%20Vault%20for%20Beginner%20%5BEng%5D.pdf)
    > 👉 is about Hashicorp, what is ? and how to use ?
 3. [Firewall Notes for Linux (Fedora)](https://github.com/z3rg/Publication/blob/main/3.%20Firewall%20Notes%20for%20Linux%20(Fedora).md)
    > 👉 A beginner note to firewalld, how to configure them with backend iptables tested in fedora 39
