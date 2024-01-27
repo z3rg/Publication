@@ -8,7 +8,7 @@
    > 👉 is about Cloud Computing and How to Secure them for beginner
 2. Hashicorp Vault for Beginner [Eng].pdf
    > 👉 is about Hashicorp, what is ? and how to use ?
-3. Firewall Notes for Linux (Fedora)
+3. [Firewall Notes for Linux (Fedora)](https://github.com/z3rg/Publication/blob/main/3.%20Firewall%20Notes%20for%20Linux%20(Fedora).md)
    > 👉 A beginner note to firewalld, how to configure them with backend iptables tested in fedora 39
 4. [SigStore implementation on local vm enviroment (on Ubuntu Server 22.04.3)](https://github.com/z3rg/Publication/blob/main/4.%20Sigstore%20Locally%20on%20Ubuntu%2022.04.md)
    > 👉 A beginner guide how to implement in non MacOS system 💯
