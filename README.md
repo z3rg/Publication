@@ -12,7 +12,7 @@
    > 👉 A beginner note to firewalld, how to configure them with backend iptables tested in fedora 39
 4. SigStore implementation on local vm enviroment (on Ubuntu Server 22.04.3)
    > 👉 A beginner guide how to implement in non MacOS system 💯
-5. How to install custom recovery and root Galaxy Note 10+ (SCV45) (ID)
+5. [How to install custom recovery and root Galaxy Note 10+ (SCV45) (ID)](https://github.com/z3rg/Publication/blob/main/5.%20How%20to%20install%20custom%20recovery%20and%20root%20Galaxy%20Note%2010%2B%20(SCV45)%20(ID).md)
    > 👉 A tutorial how to install root for device d2q (dalam Bahasa)
 ------------------------------------------------------------------------------
 
