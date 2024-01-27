@@ -4,7 +4,7 @@
 -----------------------------------------------------------------------------
 ### Table of Content :
 -----------------------------------------------------------------------------
-1. Cloud Computing Security for Beginner [Eng].pdf
+1. [Cloud Computing Security for Beginner [Eng].pdf](https://github.com/z3rg/Publication/blob/main/1.%20Cloud%20Computing%20Security%20for%20Beginner%20%5BEng%5D.pdf)
    > 👉 is about Cloud Computing and How to Secure them for beginner
 2. [Hashicorp Vault for Beginner [Eng].pdf](https://github.com/z3rg/Publication/blob/main/2.%20Hashicorp%20Vault%20for%20Beginner%20%5BEng%5D.pdf)
    > 👉 is about Hashicorp, what is ? and how to use ?
