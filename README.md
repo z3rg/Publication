@@ -15,9 +15,10 @@
 5. [How to install custom recovery and root Galaxy Note 10+ (SCV45) (ID)](https://github.com/z3rg/Publication/blob/main/5.%20How%20to%20install%20custom%20recovery%20and%20root%20Galaxy%20Note%2010%2B%20(SCV45)%20(ID).md)
    > 👉 A tutorial how to install root for device d2q (dalam Bahasa)
 6. Install runners github action using cheap vps (upcoming)
-7. Setup your mini home virtual server (esxi) using HP Elitedesk (upcoming)
-8. Setup Laptop that havent have intel lan virtual server (esxi) MSI gf63 (upcoming)
-9. Setup Laptop Lenovo as mobile virtual server (esxi) lab T15 with intel Lan
+7. Getting your own free hypervisor vmware ESXI with free license (upcoming)
+8. Setup your mini home virtual server (esxi) using HP Elitedesk (upcoming)
+9. Setup Laptop that havent have intel lan virtual server (esxi) MSI gf63 (upcoming)
+10. Setup Laptop Lenovo as mobile virtual server (esxi) lab T15 with intel Lan
 ------------------------------------------------------------------------------
 
 😃
