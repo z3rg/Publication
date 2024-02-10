@@ -1,0 +1,3 @@
+Plug the USB drive into your ESXi
+Connect to the ESXi host using SSH and login as root
+List available USB devices and locate your drive
