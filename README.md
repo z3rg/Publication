@@ -14,7 +14,7 @@
    > 👉 A beginner guide how to implement in non MacOS system 💯
 5. [How to install custom recovery and root Galaxy Note 10+ (SCV45) (ID)](https://github.com/z3rg/Publication/blob/main/5.%20How%20to%20install%20custom%20recovery%20and%20root%20Galaxy%20Note%2010%2B%20(SCV45)%20(ID).md)
    > 👉 A tutorial how to install root for device d2q (dalam Bahasa)
-6. How to make USB HDD as a Storage for ESXi
+6. [How to make USB HDD as a Storage for ESXi](https://github.com/z3rg/Publication/blob/main/6.%20USB%20HDD%20as%20a%20Storage%20for%20ESXi.md)
 ------------------------------------------------------------------------------
 
 😃
